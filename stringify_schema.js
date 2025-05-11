@@ -233,4 +233,5 @@ module.exports = {
   generateSchema,
   generateFormat,
   asJsonSchemaPath,
+  set,
 };
