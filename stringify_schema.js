@@ -1,8 +1,35 @@
-const set = require('lodash.set');
 const get = require('lodash.get');
 const mapvalues = require('lodash.mapvalues');
 const clonedeep = require('lodash.clonedeep');
 const fastJson = require('fast-json-stringify');
+
+/**
+ * Sets a value at path of object. If a portion of path doesn't exist, it's created.
+ * 
+ * @param {Object} obj - The object to modify
+ * @param {string} path - The path of the property to set
+ * @param {*} value - The value to set
+ * @returns {Object} - Returns the modified object
+ */
+function set(obj, path, value) {
+  if (!obj || typeof obj !== 'object') {
+    return obj;
+  }
+  
+  const keys = path.split('.');
+  let current = obj;
+  
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i];
+    if (!(key in current) || current[key] === null) {
+      current[key] = {};
+    }
+    current = current[key];
+  }
+  
+  current[keys[keys.length - 1]] = value;
+  return obj;
+}
 
 const PREFIXS = ['req', 'res'];
 

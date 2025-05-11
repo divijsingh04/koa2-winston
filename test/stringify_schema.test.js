@@ -1,6 +1,6 @@
 const test = require('ava');
 
-const { generateSchema } = require('../stringify_schema');
+const { generateSchema, asJsonSchemaPath } = require('../stringify_schema');
 
 test('default schema on definitions', (t) => {
   const schema = generateSchema({});
@@ -70,4 +70,27 @@ test('unselect res.status should not work', (t) => {
     req: { type: 'object', properties: {} },
     res: { type: 'object', properties: {} },
   });
+});
+
+// Additional tests for the custom set implementation
+
+test('custom schema setting with deeply nested paths', (t) => {
+  const schema = generateSchema({ 
+    reqSelect: ['body.data.items.id', 'body.data.items.name'] 
+  });
+  
+  t.truthy(schema.definitions.req.properties.body);
+  t.truthy(schema.definitions.req.properties.body.properties);
+  t.truthy(schema.definitions.req.properties.body.properties.data);
+  t.truthy(schema.definitions.req.properties.body.properties.data.properties);
+  t.truthy(schema.definitions.req.properties.body.properties.data.properties.items);
+  t.truthy(schema.definitions.req.properties.body.properties.data.properties.items.properties);
+  t.truthy(schema.definitions.req.properties.body.properties.data.properties.items.properties.id);
+  t.truthy(schema.definitions.req.properties.body.properties.data.properties.items.properties.name);
+});
+
+test('asJsonSchemaPath correctly transforms paths', (t) => {
+  t.is(asJsonSchemaPath('a.b.c'), 'a.properties.b.properties.c');
+  t.is(asJsonSchemaPath('header.cookie'), 'header.properties.cookie');
+  t.is(asJsonSchemaPath('body.data.items'), 'body.properties.data.properties.items');
 });
